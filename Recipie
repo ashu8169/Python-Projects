@@ -1,0 +1,92 @@
+import tkinter as tk
+from tkinter import messagebox, simpledialog
+
+class RecipeBook:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Recipe Book")
+
+        self.recipes = []
+
+        # UI Elements
+        self.title_label = tk.Label(root, text="Recipe Title:")
+        self.title_label.pack()
+        self.title_entry = tk.Entry(root)
+        self.title_entry.pack()
+
+        self.ingredients_label = tk.Label(root, text="Ingredients (comma-separated):")
+        self.ingredients_label.pack()
+        self.ingredients_entry = tk.Entry(root)
+        self.ingredients_entry.pack()
+
+        self.steps_label = tk.Label(root, text="Steps:")
+        self.steps_label.pack()
+        self.steps_entry = tk.Text(root, height=5, width=40)
+        self.steps_entry.pack()
+
+        self.cooking_time_label = tk.Label(root, text="Cooking Time (minutes):")
+        self.cooking_time_label.pack()
+        self.cooking_time_entry = tk.Entry(root)
+        self.cooking_time_entry.pack()
+
+        self.add_button = tk.Button(root, text="Add Recipe", command=self.add_recipe)
+        self.add_button.pack()
+
+        self.view_button = tk.Button(root, text="View Recipes", command=self.view_recipes)
+        self.view_button.pack()
+
+        self.search_button = tk.Button(root, text="Search Recipe", command=self.search_recipe)
+        self.search_button.pack()
+
+    def add_recipe(self):
+        title = self.title_entry.get()
+        ingredients = self.ingredients_entry.get()
+        steps = self.steps_entry.get("1.0", tk.END).strip()
+        cooking_time = self.cooking_time_entry.get()
+
+        if title and ingredients and steps and cooking_time.isdigit():
+            recipe = {
+                'title': title,
+                'ingredients': ingredients.split(','),
+                'steps': steps,
+                'cooking_time': cooking_time
+            }
+            self.recipes.append(recipe)
+            messagebox.showinfo("Success", "Recipe added successfully!")
+            self.clear_entries()
+        else:
+            messagebox.showerror("Error", "Please fill in all fields correctly.")
+
+    def clear_entries(self):
+        self.title_entry.delete(0, tk.END)
+        self.ingredients_entry.delete(0, tk.END)
+        self.steps_entry.delete("1.0", tk.END)
+        self.cooking_time_entry.delete(0, tk.END)
+
+    def view_recipes(self):
+        if not self.recipes:
+            messagebox.showinfo("No Recipes", "No recipes available.")
+            return
+
+        recipes_info = "\n".join(f"{r['title']} - {r['cooking_time']} mins" for r in self.recipes)
+        messagebox.showinfo("Recipes", recipes_info)
+
+    def search_recipe(self):
+        search_title = simpledialog.askstring("Search", "Enter the recipe title:")
+        if search_title:
+            found_recipes = [r for r in self.recipes if r['title'].lower() == search_title.lower()]
+            if found_recipes:
+                recipe = found_recipes[0]
+                messagebox.showinfo("Recipe Found", 
+                    f"Title: {recipe['title']}\n"
+                    f"Ingredients: {', '.join(recipe['ingredients'])}\n"
+                    f"Steps: {recipe['steps']}\n"
+                    f"Cooking Time: {recipe['cooking_time']} mins"
+                )
+            else:
+                messagebox.showinfo("Not Found", "Recipe not found.")
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = RecipeBook(root)
+    root.mainloop()
